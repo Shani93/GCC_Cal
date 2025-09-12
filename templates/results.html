@@ -1,169 +1,175 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12 text-center mb-4">
-        <h1 class="main-header">GCC Setup Cost Calculator</h1>
+<!-- Header with Logo -->
+<div class="header-container">
+    <div class="container">
+        <div class="logo-title-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Company Logo" class="company-logo">
+            <h1 class="main-header">GCC Setup Cost Calculator</h1>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <!-- Sidebar Form -->
-    <div class="col-md-4">
-        <div class="sidebar-card">
-            <h4 class="section-header">Configuration</h4>
-            
-            <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
-                <!-- Headcount -->
-                <div class="mb-3">
-                    <label for="headcount" class="form-label">Select Headcount</label>
-                    <input type="range" class="form-range" id="headcount" name="headcount" min="1" max="1000" value="{{ results.headcount }}" oninput="updateHeadcountValue(this.value)">
-                    <div class="d-flex justify-content-between">
-                        <span>1</span>
-                        <span id="headcount-value">{{ results.headcount }}</span>
-                        <span>1000</span>
-                    </div>
-                </div>
+<div class="container">
+    <div class="row">
+        <!-- Sidebar Form -->
+        <div class="col-md-4">
+            <div class="sidebar-card">
+                <h4 class="section-header">Configuration</h4>
                 
-                <!-- Tier Selection -->
-                <div class="mb-3">
-                    <label for="tier" class="form-label">Select Tier</label>
-                    <select class="form-select" id="tier" name="tier" onchange="updateCities()">
-                        {% for tier in cities_by_tier.keys() %}
-                        <option value="{{ tier }}" {% if results.tier == tier %}selected{% endif %}>{{ tier }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <!-- City Selection -->
-                <div class="mb-3">
-                    <label for="city" class="form-label">Select City</label>
-                    <select class="form-select" id="city" name="city">
-                        <option value="{{ results.city }}" selected>{{ results.city }}</option>
-                    </select>
-                </div>
-                
-                <!-- Plan Selection -->
-                <h4 class="section-header mt-4">Plan Selection</h4>
-                <div class="row mb-3">
-                    <div class="col-4">
-                        <div class="plan-card {% if results.plan == 'Basic' %}selected{% endif %}" id="basic-card">
-                            <h6>Basic</h6>
-                            <p class="small">Essential setup</p>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select Basic</button>
+                <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
+                    <!-- Headcount -->
+                    <div class="mb-3">
+                        <label for="headcount" class="form-label">Select Headcount</label>
+                        <input type="range" class="form-range" id="headcount" name="headcount" min="1" max="1000" value="{{ results.headcount }}" oninput="updateHeadcountValue(this.value)">
+                        <div class="d-flex justify-content-between">
+                            <span>1</span>
+                            <span id="headcount-value">{{ results.headcount }}</span>
+                            <span>1000</span>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <div class="plan-card {% if results.plan == 'Premium' %}selected{% endif %}" id="premium-card">
-                            <h6>Premium</h6>
-                            <p class="small">Enhanced features</p>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select Premium</button>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="plan-card {% if results.plan == 'Advance' %}selected{% endif %}" id="advance-card">
-                            <h6>Advance</h6>
-                            <p class="small">Full customization</p>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select Advance</button>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" id="plan" name="plan" value="{{ results.plan }}">
-                
-                <!-- Component Selection -->
-                <h4 class="section-header mt-4">Component Selection</h4>
-                <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" {% if results.real_estate_toggle %}checked{% endif %}>
-                    <label class="form-check-label" for="real_estate">Include Real Estate</label>
-                </div>
-                <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" {% if results.it_infra_toggle %}checked{% endif %}>
-                    <label class="form-check-label" for="it_infra">Include IT Infrastructure</label>
-                </div>
-                <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" id="enabling" name="enabling" {% if results.enabling_toggle %}checked{% endif %}>
-                    <label class="form-check-label" for="enabling">Include Enabling Functions</label>
-                </div>
-                <div class="form-check form-switch mb-3">
-                    <input class="form-check-input" type="checkbox" id="technology" name="technology" {% if results.technology_toggle %}checked{% endif %}>
-                    <label class="form-check-label" for="technology">Include Technology</label>
-                </div>
-                
-                <!-- Calculate Button -->
-                <button type="submit" class="btn btn-primary w-100">Calculate Cost</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="col-md-8">
-        <h4 class="section-header">Calculation Results</h4>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="metric-card mb-4">
-                    <h5>Total Monthly Cost (INR)</h5>
-                    <h2 class="orange-text">₹{{ "{:,.0f}".format(results.total_cost) }}</h2>
-                </div>
-                
-                <div class="content-card">
-                    <h6>Cost Breakdown (Monthly):</h6>
-                    {% if results.real_estate_toggle %}
-                    <p>- Real Estate: ₹{{ "{:,.0f}".format(results.total_real_estate_cost) }}</p>
-                    {% endif %}
-                    {% if results.it_infra_toggle %}
-                    <p>- IT Infrastructure: ₹{{ "{:,.0f}".format(results.total_it_infra_cost) }}</p>
-                    {% endif %}
-                    {% if results.enabling_toggle %}
-                    <p>- Enabling Functions: ₹{{ "{:,.0f}".format(results.enab_cost) }}</p>
-                    {% endif %}
-                    {% if results.technology_toggle %}
-                    <p>- Technology: ₹{{ "{:,.0f}".format(results.tech_cost) }}</p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="metric-card mb-4">
-                    <h5>Cost (USD/hour/head)</h5>
-                    <h2 class="orange-text">${{ "%.6f"|format(results.hourly_cost_per_head_usd) }}</h2>
-                </div>
-                
-                <div class="content-card">
-                    <h6>Configuration:</h6>
-                    <p>- Headcount: {{ results.headcount }}</p>
-                    <p>- City: {{ results.city }} ({{ results.tier }})</p>
-                    <p>- Plan: {{ results.plan }}</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-12">
-                <button class="btn btn-primary" onclick="downloadReport()">Download Report</button>
-            </div>
-        </div>
-        
-        <hr class="my-4">
-        
-        <h4 class="section-header">Plan Details</h4>
-        
-        <div class="row">
-            <div class="col-md-8">
-                <div class="content-card">
-                    <h5>{{ results.plan_details.name }}</h5>
-                    <p class="fst-italic">{{ results.plan_details.description }}</p>
                     
-                    <h6>Components Included:</h6>
-                    <ul class="list-unstyled">
-                        <li><strong>Real Estate:</strong> {{ results.plan_details.real_estate }}</li>
-                        <li><strong>IT Infrastructure:</strong> {{ results.plan_details.it_infra }}</li>
-                        <li><strong>Enabling Functions:</strong> {{ results.plan_details.enabling_functions }}</li>
-                        <li><strong>Technology:</strong> {{ results.plan_details.technology }}</li>
-                    </ul>
+                    <!-- Tier Selection -->
+                    <div class="mb-3">
+                        <label for="tier" class="form-label">Select Tier</label>
+                        <select class="form-select" id="tier" name="tier" onchange="updateCities()">
+                            {% for tier in cities_by_tier.keys() %}
+                            <option value="{{ tier }}" {% if results.tier == tier %}selected{% endif %}>{{ tier }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     
-                    <div class="alert alert-info">
-                        Note: If you upgrade to premium SaaS tiers, add specialist modules (performance, analytics, LMS) expect the totals to rise by 3-5%. Advance plan can be customized as per needs.
+                    <!-- City Selection -->
+                    <div class="mb-3">
+                        <label for="city" class="form-label">Select City</label>
+                        <select class="form-select" id="city" name="city">
+                            <option value="{{ results.city }}" selected>{{ results.city }}</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Plan Selection -->
+                    <h4 class="section-header mt-4">Plan Selection</h4>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <div class="plan-card {% if results.plan == 'Basic' %}selected{% endif %}" id="basic-card">
+                                <h6>Basic</h6>
+                                <p class="small">Essential setup</p>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select Basic</button>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="plan-card {% if results.plan == 'Premium' %}selected{% endif %}" id="premium-card">
+                                <h6>Premium</h6>
+                                <p class="small">Enhanced features</p>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select Premium</button>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="plan-card {% if results.plan == 'Advance' %}selected{% endif %}" id="advance-card">
+                                <h6>Advance</h6>
+                                <p class="small">Fully customized</p>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select Advance</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="plan" name="plan" value="{{ results.plan }}">
+                    
+                    <!-- Component Selection -->
+                    <h4 class="section-header mt-4">Component Selection</h4>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" {% if results.real_estate_toggle %}checked{% endif %}>
+                        <label class="form-check-label" for="real_estate">Include Real Estate</label>
+                    </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" {% if results.it_infra_toggle %}checked{% endif %}>
+                        <label class="form-check-label" for="it_infra">Include IT Infrastructure</label>
+                    </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="enabling" name="enabling" {% if results.enabling_toggle %}checked{% endif %}>
+                        <label class="form-check-label" for="enabling">Include Enabling Functions</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="technology" name="technology" {% if results.technology_toggle %}checked{% endif %}>
+                        <label class="form-check-label" for="technology">Include Technology</label>
+                    </div>
+                    
+                    <!-- Calculate Button -->
+                    <button type="submit" class="btn btn-primary w-100">Calculate Cost</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <h4 class="section-header">Calculation Results</h4>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="metric-card mb-4">
+                        <h5>Total Monthly Cost (INR)</h5>
+                        <h2 class="orange-text">₹{{ "{:,.0f}".format(results.total_cost) }}</h2>
+                    </div>
+                    
+                    <div class="content-card">
+                        <h6>Cost Breakdown (Monthly):</h6>
+                        {% if results.real_estate_toggle %}
+                        <p>- Real Estate: ₹{{ "{:,.0f}".format(results.total_real_estate_cost) }}</p>
+                        {% endif %}
+                        {% if results.it_infra_toggle %}
+                        <p>- IT Infrastructure: ₹{{ "{:,.0f}".format(results.total_it_infra_cost) }}</p>
+                        {% endif %}
+                        {% if results.enabling_toggle %}
+                        <p>- Enabling Functions: ₹{{ "{:,.0f}".format(results.enab_cost) }}</p>
+                        {% endif %}
+                        {% if results.technology_toggle %}
+                        <p>- Technology: ₹{{ "{:,.0f}".format(results.tech_cost) }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="metric-card mb-4">
+                        <h5>Cost (USD/hour/head)</h5>
+                        <h2 class="orange-text">${{ "%.6f"|format(results.hourly_cost_per_head_usd) }}</h2>
+                    </div>
+                    
+                    <div class="content-card">
+                        <h6>Configuration:</h6>
+                        <p>- Headcount: {{ results.headcount }}</p>
+                        <p>- City: {{ results.city }} ({{ results.tier }})</p>
+                        <p>- Plan: {{ results.plan }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <button class="btn btn-primary" onclick="downloadReport()">Download Report</button>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <h4 class="section-header">Plan Details</h4>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="content-card">
+                        <h5>{{ results.plan_details.name }}</h5>
+                        <p class="fst-italic">{{ results.plan_details.description }}</p>
+                        
+                        <h6>Components Included:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Real Estate:</strong> {{ results.plan_details.real_estate }}</li>
+                            <li><strong>IT Infrastructure:</strong> {{ results.plan_details.it_infra }}</li>
+                            <li><strong>Enabling Functions:</strong> {{ results.plan_details.enabling_functions }}</li>
+                            <li><strong>Technology:</strong> {{ results.plan_details.technology }}</li>
+                        </ul>
+                        
+                        <div class="alert alert-info">
+                            Note: If you upgrade to premium SaaS tiers, add specialist modules (performance, analytics, LMS) expect the totals to rise by 3-5%. Advance plan can be customized as per needs.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -175,7 +181,7 @@
 
 <div class="row">
     <div class="col-12 text-center footer">
-        <p>GCC Setup Cost Calculator v1.0 | © 2023 GatewAI Technologies</p>
+        <p>GCC Setup Cost Calculator v1.0</p>
     </div>
 </div>
 
