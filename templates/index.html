@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center mb-4">
+        <h1 class="main-header">GCC Setup Cost Calculator</h1>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sidebar Form -->
+    <div class="col-md-4">
+        <div class="sidebar-card">
+            <h4 class="section-header">Configuration</h4>
+            
+            <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
+                <!-- Headcount -->
+                <div class="mb-3">
+                    <label for="headcount" class="form-label">Select Headcount</label>
+                    <input type="range" class="form-range" id="headcount" name="headcount" min="1" max="1000" value="100" oninput="updateHeadcountValue(this.value)">
+                    <div class="d-flex justify-content-between">
+                        <span>1</span>
+                        <span id="headcount-value">100</span>
+                        <span>1000</span>
+                    </div>
+                </div>
+                
+                <!-- Tier Selection -->
+                <div class="mb-3">
+                    <label for="tier" class="form-label">Select Tier</label>
+                    <select class="form-select" id="tier" name="tier" onchange="updateCities()">
+                        {% for tier in tiers %}
+                        <option value="{{ tier }}">{{ tier }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- City Selection -->
+                <div class="mb-3">
+                    <label for="city" class="form-label">Select City</label>
+                    <select class="form-select" id="city" name="city">
+                        {% for city in cities_by_tier[tiers[0]] %}
+                        <option value="{{ city }}">{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Plan Selection -->
+                <h4 class="section-header mt-4">Plan Selection</h4>
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <div class="plan-card" id="basic-card">
+                            <h6>Basic</h6>
+                            <p class="small">Essential setup</p>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select Basic</button>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="plan-card" id="premium-card">
+                            <h6>Premium</h6>
+                            <p class="small">Enhanced features</p>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select Premium</button>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="plan-card" id="advance-card">
+                            <h6>Advance</h6>
+                            <p class="small">Full customization</p>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select Advance</button>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="plan" name="plan" value="Basic">
+                
+                <!-- Component Selection -->
+                <h4 class="section-header mt-4">Component Selection</h4>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" checked>
+                    <label class="form-check-label" for="real_estate">Include Real Estate</label>
+                </div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" checked>
+                    <label class="form-check-label" for="it_infra">Include IT Infrastructure</label>
+                </div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="enabling" name="enabling" checked>
+                    <label class="form-check-label" for="enabling">Include Enabling Functions</label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="technology" name="technology" checked>
+                    <label class="form-check-label" for="technology">Include Technology</label>
+                </div>
+                
+                <!-- Calculate Button -->
+                <button type="submit" class="btn btn-primary w-100">Calculate Cost</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="col-md-8">
+        <h4 class="section-header">Plan Details</h4>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="content-card">
+                    <h5 id="plan-name">Basic Plan</h5>
+                    <p id="plan-description" class="fst-italic">Essential GCC setup with core functionality</p>
+                    
+                    <h6>Components Included:</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>Real Estate:</strong> <span id="plan-real-estate">Managed Workspace</span></li>
+                        <li><strong>IT Infrastructure:</strong> <span id="plan-it-infra">Hardware, Networking, Security solutions, Cloud, IT Support, Collaboration tools, Data-centre, Disaster-recovery backups, Compliance & audits, End-user peripherals, cybersecurity (SIEM/DLP), Biometric attendance/access</span></li>
+                        <li><strong>Enabling Functions:</strong> <span id="plan-enabling-functions">Based on team size: HR/Admin, Finance, IT, Admin, HRBP+Ops</span></li>
+                        <li><strong>Technology:</strong> <span id="plan-technology">Platforms like Talent Trail, Zoho People, Freshteam, Keka Foundation, BambooHR, SAP SuccessFactors, Recruiter Fusion, Zoho Books</span></li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        Note: If you upgrade to premium SaaS tiers, add specialist modules (performance, analytics, LMS) expect the totals to rise by 3-5%. Advance plan can be customized as per needs.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="content-card">
+                    <h4 class="section-header">Quick Reference</h4>
+                    
+                    <div class="metric-card mb-3">
+                        <h6 id="avg-real-estate-label">Avg Real Estate Cost (Tier 1)</h6>
+                        <h4 class="orange-text" id="avg-real-estate-value">₹0</h4>
+                    </div>
+                    
+                    <div class="metric-card mb-3">
+                        <h6 id="avg-it-infra-label">Avg IT Infrastructure Cost (Tier 1)</h6>
+                        <h4 class="orange-text" id="avg-it-infra-value">₹0</h4>
+                    </div>
+                    
+                    <h6>Plan Cost Ranges (Monthly):</h6>
+                    <ul class="list-unstyled small">
+                        <li>Basic: <span id="basic-range">₹0 - ₹0</span></li>
+                        <li>Premium: <span id="premium-range">₹0 - ₹0</span></li>
+                        <li>Advance: <span id="advance-range">₹0 - ₹0</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<div class="row">
+    <div class="col-12 text-center footer">
+        <p>GCC Setup Cost Calculator v1.0 | © 2023 GatewAI Technologies</p>
+    </div>
+</div>
+
+<script>
+    // Initialize page with data from Flask
+    const citiesByTier = {{ cities_by_tier | tojson }};
+    const avgCosts = {{ avg_costs | tojson }};
+    const planRanges = {{ plan_ranges | tojson }};
+    
+    // Set initial values
+    document.addEventListener('DOMContentLoaded', function() {
+        updateAverages('Tier 1');
+        updatePlanRanges();
+        selectPlan('Basic');
+    });
+    
+    function updateHeadcountValue(value) {
+        document.getElementById('headcount-value').textContent = value;
+    }
+    
+    function updateCities() {
+        const tier = document.getElementById('tier').value;
+        const citySelect = document.getElementById('city');
+        
+        // Clear existing options
+        citySelect.innerHTML = '';
+        
+        // Add new options
+        citiesByTier[tier].forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+        
+        // Update averages
+        updateAverages(tier);
+    }
+    
+    function updateAverages(tier) {
+        document.getElementById('avg-real-estate-label').textContent = `Avg Real Estate Cost (${tier})`;
+        document.getElementById('avg-it-infra-label').textContent = `Avg IT Infrastructure Cost (${tier})`;
+        
+        document.getElementById('avg-real-estate-value').textContent = 
+            `₹${avgCosts[tier].real_estate.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+        
+        document.getElementById('avg-it-infra-value').textContent = 
+            `₹${avgCosts[tier].it_infra.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+    }
+    
+    function updatePlanRanges() {
+        document.getElementById('basic-range').textContent = 
+            `₹${planRanges.Basic.min.toLocaleString('en-IN', {maximumFractionDigits: 0})} - ₹${planRanges.Basic.max.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+        
+        document.getElementById('premium-range').textContent = 
+            `₹${planRanges.Premium.min.toLocaleString('en-IN', {maximumFractionDigits: 0})} - ₹${planRanges.Premium.max.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+        
+        document.getElementById('advance-range').textContent = 
+            `₹${planRanges.Advance.min.toLocaleString('en-IN', {maximumFractionDigits: 0})} - ₹${planRanges.Advance.max.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+    }
+    
+    function selectPlan(plan) {
+        // Update hidden input
+        document.getElementById('plan').value = plan;
+        
+        // Update UI
+        const planCards = document.querySelectorAll('.plan-card');
+        planCards.forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        document.getElementById(`${plan.toLowerCase()}-card`).classList.add('selected');
+        
+        // Update plan details
+        const planDetails = {
+            'Basic': {
+                name: 'Basic Plan',
+                description: 'Essential GCC setup with core functionality',
+                real_estate: 'Managed Workspace',
+                it_infra: 'Hardware, Networking, Security solutions, Cloud, IT Support, Collaboration tools, Data-centre, Disaster-recovery backups, Compliance & audits, End-user peripherals, cybersecurity (SIEM/DLP), Biometric attendance/access',
+                enabling_functions: 'Based on team size: HR/Admin, Finance, IT, Admin, HRBP+Ops',
+                technology: 'Platforms like Talent Trail, Zoho People, Freshteam, Keka Foundation, BambooHR, SAP SuccessFactors, Recruiter Fusion, Zoho Books'
+            },
+            'Premium': {
+                name: 'Premium Plan',
+                description: 'Enhanced GCC setup with additional features',
+                real_estate: 'Managed Workspace',
+                it_infra: 'Hardware, Networking, Security solutions, Cloud/SaaS, IT Support & AMC, Collaboration tools, Data-centre/Colocation, Disaster-recovery backups, Compliance & audits, End-user peripherals, Advanced cybersecurity (SIEM/DLP), Biometric attendance/access',
+                enabling_functions: 'HR/Admin, Finance, IT, Admin, HRBP+Ops, Marketing, Legal, Finance, Other',
+                technology: 'Talent Trail, Zoho Campaigns, Contracts, Books, Premium, Keka Foundation, BambooHR, Darwinbox, SAP SuccessFactors, Recruiter Fusion'
+            },
+            'Advance': {
+                name: 'Advance Plan',
+                description: 'Comprehensive GCC setup with full customization',
+                real_estate: 'Managed Workspace',
+                it_infra: 'Hardware, Networking, Security solutions, Cloud/SaaS, IT Support & AMC, Collaboration tools, Data-centre/Colocation, Disaster-recovery backups, Compliance & audits, End-user peripherals, Advanced cybersecurity (SIEM/DLP), Biometric attendance/access',
+                enabling_functions: 'HR/Admin, Finance, IT, Admin, HRBP+Ops, Marketing, Legal, Finance, Vendor Mgmt, Other',
+                technology: 'Talent Trial, HubSpot Pro, DocuSign CLM, QuickBooks Adv, Salesforce Marketing Cloud, Xero, Notion, Marketo Pro, ContractWorks, NetSuite, Oracle Eloqua, Agifo, SAP B1, Slack Grid, Keka Foundation, BambooHR, Darwinbox, SAP SuccessFactors, Recruiter Fusion'
+            }
+        };
+        
+        const details = planDetails[plan];
+        document.getElementById('plan-name').textContent = details.name;
+        document.getElementById('plan-description').textContent = details.description;
+        document.getElementById('plan-real-estate').textContent = details.real_estate;
+        document.getElementById('plan-it-infra').textContent = details.it_infra;
+        document.getElementById('plan-enabling-functions').textContent = details.enabling_functions;
+        document.getElementById('plan-technology').textContent = details.technology;
+    }
+</script>
+{% endblock %}
