@@ -1,12 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Header with Logo -->
+<!-- Enhanced Header with Logo and Tagline -->
 <div class="header-container">
     <div class="container">
-        <div class="logo-title-container">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Company Logo" class="company-logo">
-            <h1 class="main-header">GCC Setup Cost Calculator</h1>
+        <div class="header-content">
+            <div class="logo-section">
+                <a href="https://gatewai.io" target="_blank" class="logo-link">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Company Logo" class="company-logo">
+                </a>
+            </div>
+            
+            <div class="title-section">
+                <h1 class="main-header">GCC Setup Cost Calculator</h1>
+                
+                <div class="tagline-container">
+                    <p class="tagline">Infraflex is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -181,6 +192,7 @@
 
 <div class="row">
     <div class="col-12 text-center footer">
+        <p class="disclaimer">Disclaimer: The cost estimates provided by Infraflex are indicative and approximate, based on prevailing market conditions. Actual costs may vary depending on location, vendor negotiations, and other dynamic factors.</p>
         <p>GCC Setup Cost Calculator v1.0</p>
     </div>
 </div>
