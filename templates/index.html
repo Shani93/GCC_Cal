@@ -1,37 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Enhanced Header with Logo and Tagline -->
-<div class="header-container">
+<!-- Header with Background Image and Main Logo -->
+<div class="header-container" style="background-image: url('{{ url_for('static', filename='images/header-bg.jpg') }}'); background-size: cover; background-position: center; padding: 20px 0;">
     <div class="container">
-        <div class="header-content">
+        <div class="header-content text-center">
             <div class="logo-section">
                 <a href="https://gatewai.io" target="_blank" class="logo-link">
                     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Company Logo" class="company-logo">
                 </a>
             </div>
-            
-            <div class="title-section">
-                <h1 class="main-header">GCC Setup Cost Calculator</h1>
-                
-                <div class="tagline-container">
-                    <p class="tagline">Infraflex is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.</p>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
-<div class="container">
-    <div class="row">
-        <!-- Sidebar Form -->
-        <div class="col-md-4">
-            <div class="sidebar-card">
-                <h4 class="section-header">Configuration</h4>
-                
-                <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
+<!-- Title Section with Infraflex Logo Above -->
+<div class="title-below-header">
+    <div class="container text-center">
+        <div class="infraflex-logo mb-3">
+            <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Infraflex Logo" class="infraflex-logo-img">
+        </div>
+        <h1 class="main-header">GCC Setup Cost Calculator</h1>
+    </div>
+</div>
+
+<!-- Tagline Section in One Line -->
+<div class="tagline-section">
+    <div class="tagline-container text-center">
+        <p class="tagline">
+            gatewAI's Infraflex is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.
+        </p>
+    </div>
+</div>
+
+<!-- Main Calculator -->
+<div class="container main-container">
+    <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
+        <!-- Top Row: Configuration + Plan Selection + Component Selection (Horizontal) -->
+        <div class="row g-4" style="display: flex; flex-wrap: nowrap;">
+            <!-- Configuration -->
+            <div class="col-md-4" style="flex: 1;">
+                <div class="sidebar-card config-section">
+                    <h4 class="section-header">Configuration</h4>
                     <!-- Headcount -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="headcount" class="form-label">Select Headcount</label>
                         <input type="range" class="form-range" id="headcount" name="headcount" min="1" max="1000" value="100" oninput="updateHeadcountValue(this.value)">
                         <div class="d-flex justify-content-between">
@@ -42,7 +54,7 @@
                     </div>
                     
                     <!-- Tier Selection -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="tier" class="form-label">Select Tier</label>
                         <select class="form-select" id="tier" name="tier" onchange="updateCities()">
                             {% for tier in tiers %}
@@ -52,7 +64,7 @@
                     </div>
                     
                     <!-- City Selection -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="city" class="form-label">Select City</label>
                         <select class="form-select" id="city" name="city">
                             {% for city in cities_by_tier[tiers[0]] %}
@@ -60,123 +72,229 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
-                    <!-- Plan Selection -->
-                    <h4 class="section-header mt-4">Plan Selection</h4>
-                    <div class="row mb-3">
-                        <div class="col-4">
-                            <div class="plan-card" id="basic-card">
-                                <h6>Basic</h6>
-                                <p class="small">Essential setup</p>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select Basic</button>
+                </div>
+            </div>
+
+            <!-- Plan Selection - Modified for vertical layout -->
+            <div class="col-md-4" style="flex: 1;">
+                <div class="sidebar-card">
+                    <h4 class="section-header">Plan Selection</h4>
+                    <div class="plan-selection-vertical mb-4">
+                        <div class="plan-card-vertical mb-3" id="basic-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Basic</h6>
+                                    <p class="small mb-0">Essential setup</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select</button>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="plan-card" id="premium-card">
-                                <h6>Premium</h6>
-                                <p class="small">Enhanced features</p>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select Premium</button>
+                        <div class="plan-card-vertical mb-3" id="premium-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Premium</h6>
+                                    <p class="small mb-0">Enhanced features</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select</button>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="plan-card" id="advance-card">
-                                <h6>Advance</h6>
-                                <p class="small">Fully customized</p>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select Advance</button>
+                        <div class="plan-card-vertical" id="advance-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Advance</h6>
+                                    <p class="small mb-0">Fully customized</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select</button>
                             </div>
                         </div>
                     </div>
                     <input type="hidden" id="plan" name="plan" value="Basic">
-                    
-                    <!-- Component Selection -->
-                    <h4 class="section-header mt-4">Component Selection</h4>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" checked>
-                        <label class="form-check-label" for="real_estate">Include Real Estate</label>
+                </div>
+            </div>
+
+            <!-- Component Selection - Matching Plan Selection Size -->
+            <div class="col-md-4" style="flex: 1;">
+                <div class="sidebar-card">
+                    <h4 class="section-header">Component Selection</h4>
+                    <div class="component-selection-vertical mb-4">
+                        <div class="component-card-vertical mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Real Estate</h6>
+                                    <p class="small mb-0">Office space & facilities</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" checked>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="component-card-vertical mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>IT Infrastructure</h6>
+                                    <p class="small mb-0">Hardware, networking & security</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" checked>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="component-card-vertical mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Enabling Functions</h6>
+                                    <p class="small mb-0">HR, Finance & Admin</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enabling" name="enabling" checked>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="component-card-vertical">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Software Licensing</h6>
+                                    <p class="small mb-0">Applications & platforms</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="technology" name="technology" checked>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" checked>
-                        <label class="form-check-label" for="it_infra">Include IT Infrastructure</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="enabling" name="enabling" checked>
-                        <label class="form-check-label" for="enabling">Include Enabling Functions</label>
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="technology" name="technology" checked>
-                        <label class="form-check-label" for="technology">Include Technology</label>
-                    </div>
-                    
-                    <!-- Calculate Button -->
                     <button type="submit" class="btn btn-primary w-100">Calculate Cost</button>
-                </form>
+                </div>
             </div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-8">
-            <h4 class="section-header">Plan Details</h4>
-            
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="content-card">
-                        <h5 id="plan-name">Basic Plan</h5>
-                        <p id="plan-description" class="fst-italic">Essential GCC setup with core functionality</p>
-                        
-                        <h6>Components Included:</h6>
-                        <ul class="list-unstyled">
-                            <li><strong>Real Estate:</strong> <span id="plan-real-estate">Managed Workspace</span></li>
-                            <li><strong>IT Infrastructure:</strong> <span id="plan-it-infra">Hardware, Networking, Security solutions, Cloud, IT Support, Collaboration tools, Data-centre, Disaster-recovery backups, Compliance & audits, End-user peripherals, cybersecurity (SIEM/DLP), Biometric attendance/access</span></li>
-                            <li><strong>Enabling Functions:</strong> <span id="plan-enabling-functions">Based on team size: HR/Admin, Finance, IT, Admin, HRBP+Ops</span></li>
-                            <li><strong>Technology:</strong> <span id="plan-technology">Platforms like Talent Trail, Zoho People, Freshteam, Keka Foundation, BambooHR, SAP SuccessFactors, Recruiter Fusion, Zoho Books</span></li>
-                        </ul>
-                        
-                        <div class="alert alert-info">
-                            Note: If you upgrade to premium SaaS tiers, add specialist modules (performance, analytics, LMS) expect the totals to rise by 3-5%. Advance plan can be customized as per needs.
-                        </div>
-                    </div>
+    </form>
+
+    <!-- Bottom Row: Plan Details (Left) + Quick Reference (Right) -->
+    <div class="row g-4 mt-3" style="display: flex; flex-wrap: nowrap;">
+        <!-- Plan Details -->
+        <div class="col-md-8" style="flex: 2;">
+            <div class="content-card">
+                <h4 class="section-header">Plan Details</h4>
+                <h5 id="plan-name">Basic Plan</h5>
+                <p id="plan-description" class="fst-italic">Essential GCC setup with core functionality</p>
+                <h6>Components Included:</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Real Estate:</strong> <span id="plan-real-estate">Managed Workspace</span></li>
+                    <li><strong>IT Infrastructure:</strong> <span id="plan-it-infra">Hardware, Networking, Cloud, Security, etc.</span></li>
+                    <li><strong>Enabling Functions:</strong> <span id="plan-enabling-functions">HR/Admin, Finance, IT, etc.</span></li>
+                    <li><strong>Technology:</strong> <span id="plan-technology">Zoho, SAP, Recruiter Fusion, etc.</span></li>
+                </ul>
+                <div class="alert alert-info">
+                    Note: Premium/Advance plans may increase totals by 3–5% depending on modules and customizations.
                 </div>
-                
-                <div class="col-md-4">
-                    <div class="content-card">
-                        <h4 class="section-header">Quick Reference</h4>
-                        
-                        <div class="metric-card mb-3">
-                            <h6 id="avg-real-estate-label">Avg Real Estate Cost (Tier 1)</h6>
-                            <h4 class="orange-text" id="avg-real-estate-value">₹0</h4>
-                        </div>
-                        
-                        <div class="metric-card mb-3">
-                            <h6 id="avg-it-infra-label">Avg IT Infrastructure Cost (Tier 1)</h6>
-                            <h4 class="orange-text" id="avg-it-infra-value">₹0</h4>
-                        </div>
-                        
-                        <h6>Plan Cost Ranges (Monthly):</h6>
-                        <ul class="list-unstyled small">
-                            <li>Basic: <span id="basic-range">₹0 - ₹0</span></li>
-                            <li>Premium: <span id="premium-range">₹0 - ₹0</span></li>
-                            <li>Advance: <span id="advance-range">₹0 - ₹0</span></li>
-                        </ul>
-                    </div>
-                    </div>
+            </div>
+        </div>
+
+        <!-- Quick Reference -->
+        <div class="col-md-4" style="flex: 1;">
+            <div class="content-card">
+                <h4 class="section-header">Quick Reference</h4>
+                <div class="metric-card mb-3">
+                    <h6 id="avg-real-estate-label">Avg Real Estate Cost (Tier 1)</h6>
+                    <h4 class="orange-text" id="avg-real-estate-value">₹0</h4>
                 </div>
+                <div class="metric-card mb-3">
+                    <h6 id="avg-it-infra-label">Avg IT Infrastructure Cost (Tier 1)</h6>
+                    <h4 class="orange-text" id="avg-it-infra-value">₹0</h4>
+                </div>
+                <h6>Plan Cost Ranges (Monthly):</h6>
+                <ul class="list-unstyled small">
+                    <li>Basic: <span id="basic-range">₹0 - ₹0</span></li>
+                    <li>Premium: <span id="premium-range">₹0 - ₹0</span></li>
+                    <li>Advance: <span id="advance-range">₹0 - ₹0</span></li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
-<hr class="my-4">
+<hr class="my-5">
 
+<!-- Footer -->
 <div class="row">
     <div class="col-12 text-center footer">
         <p class="disclaimer">
-            Disclaimer: The cost estimates provided by Infraflex are indicative and approximate, based on prevailing market conditions. 
-            Actual costs may vary depending on location, vendor negotiations, and other dynamic factors.
+            Disclaimer: The cost estimates provided by Infraflex are indicative and approximate. 
+            Actual costs may vary depending on location, vendor negotiations, and other factors.
         </p>
         <p>GCC Setup Cost Calculator v1.0</p>
     </div>
 </div>
 
+<!-- Add some custom CSS for the vertical plan cards -->
+<style>
+    .plan-selection-vertical {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .plan-card-vertical {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .plan-card-vertical.selected {
+        border-color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    .plan-card-vertical:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Component Selection Styles to match Plan Selection */
+    .component-selection-vertical {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .component-card-vertical {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .component-card-vertical:hover {
+        background-color: #f8f9fa;
+        border-color: #FFE4D6;
+    }
+
+    .component-card-vertical h6 {
+        margin-bottom: 2px;
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .component-card-vertical .small {
+        color: #666;
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
+
+    /* Form switch customization */
+    .component-card-vertical .form-check-input {
+        width: 2.8em;
+        height: 1.5em;
+    }
+
+    .component-card-vertical .form-check-input:checked {
+        background-color: #FF7F41;
+        border-color: #FF7F41;
+    }
+
+    /* Ensure consistent spacing */
+    .component-selection-vertical.mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+</style>
 
 <script>
     // Initialize page with data from Flask
@@ -241,7 +359,7 @@
         document.getElementById('plan').value = plan;
         
         // Update UI
-        const planCards = document.querySelectorAll('.plan-card');
+        const planCards = document.querySelectorAll('.plan-card-vertical');
         planCards.forEach(card => {
             card.classList.remove('selected');
         });
@@ -285,4 +403,5 @@
         document.getElementById('plan-technology').textContent = details.technology;
     }
 </script>
+
 {% endblock %}

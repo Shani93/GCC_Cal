@@ -1,37 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Enhanced Header with Logo and Tagline -->
-<div class="header-container">
+<!-- Header with Background Image and Main Logo -->
+<div class="header-container" style="background-image: url('{{ url_for('static', filename='images/header-bg.jpg') }}'); background-size: cover; background-position: center; padding: 20px 0;">
     <div class="container">
-        <div class="header-content">
+        <div class="header-content text-center">
             <div class="logo-section">
                 <a href="https://gatewai.io" target="_blank" class="logo-link">
                     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Company Logo" class="company-logo">
                 </a>
             </div>
-            
-            <div class="title-section">
-                <h1 class="main-header">GCC Setup Cost Calculator</h1>
-                
-                <div class="tagline-container">
-                    <p class="tagline">Infraflex is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.</p>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
-<div class="container">
-    <div class="row">
-        <!-- Sidebar Form -->
-        <div class="col-md-4">
-            <div class="sidebar-card">
-                <h4 class="section-header">Configuration</h4>
-                
-                <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
+<!-- Title Section with Infraflex Logo Above -->
+<div class="title-below-header">
+    <div class="container text-center">
+        <div class="infraflex-logo mb-3">
+            <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Infraflex Logo" class="infraflex-logo-img">
+        </div>
+        <h1 class="main-header">GCC Setup Cost Calculator</h1>
+    </div>
+</div>
+
+<!-- Tagline Section in One Line -->
+<div class="tagline-section">
+    <div class="tagline-container text-center">
+        <p class="tagline">
+            gatewAI's Infraflex is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.
+        </p>
+    </div>
+</div>
+
+<div class="container main-container">
+    <!-- Top Row: Configuration + Plan Selection + Component Selection -->
+    <form id="calculator-form" method="POST" action="{{ url_for('calculate') }}">
+        <div class="row g-4" style="display: flex; flex-wrap: nowrap;">
+            <!-- Configuration -->
+            <div class="col-md-4" style="flex: 1;">
+                <div class="sidebar-card config-section">
+                    <h4 class="section-header">Configuration</h4>
                     <!-- Headcount -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="headcount" class="form-label">Select Headcount</label>
                         <input type="range" class="form-range" id="headcount" name="headcount" min="1" max="1000" value="{{ results.headcount }}" oninput="updateHeadcountValue(this.value)">
                         <div class="d-flex justify-content-between">
@@ -42,7 +53,7 @@
                     </div>
                     
                     <!-- Tier Selection -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="tier" class="form-label">Select Tier</label>
                         <select class="form-select" id="tier" name="tier" onchange="updateCities()">
                             {% for tier in cities_by_tier.keys() %}
@@ -52,150 +63,269 @@
                     </div>
                     
                     <!-- City Selection -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="city" class="form-label">Select City</label>
                         <select class="form-select" id="city" name="city">
                             <option value="{{ results.city }}" selected>{{ results.city }}</option>
                         </select>
                     </div>
-                    
-                    <!-- Plan Selection -->
-                    <h4 class="section-header mt-4">Plan Selection</h4>
-                    <div class="row mb-3">
-                        <div class="col-4">
-                            <div class="plan-card {% if results.plan == 'Basic' %}selected{% endif %}" id="basic-card">
-                                <h6>Basic</h6>
-                                <p class="small">Essential setup</p>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select Basic</button>
+                </div>
+            </div>
+
+            <!-- Plan Selection -->
+            <div class="col-md-4" style="flex: 1;">
+                <div class="sidebar-card">
+                    <h4 class="section-header">Plan Selection</h4>
+                    <div class="plan-selection-vertical mb-4">
+                        <div class="plan-card-vertical mb-3 {% if results.plan == 'Basic' %}selected{% endif %}" id="basic-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Basic</h6>
+                                    <p class="small mb-0">Essential setup</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select</button>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="plan-card {% if results.plan == 'Premium' %}selected{% endif %}" id="premium-card">
-                                <h6>Premium</h6>
-                                <p class="small">Enhanced features</p>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select Premium</button>
+                        <div class="plan-card-vertical mb-3 {% if results.plan == 'Premium' %}selected{% endif %}" id="premium-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Premium</h6>
+                                    <p class="small mb-0">Enhanced features</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select</button>
                             </div>
                         </div>
-                        <div class="col-4">
-                            <div class="plan-card {% if results.plan == 'Advance' %}selected{% endif %}" id="advance-card">
-                                <h6>Advance</h6>
-                                <p class="small">Fully customized</p>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select Advance</button>
+                        <div class="plan-card-vertical {% if results.plan == 'Advance' %}selected{% endif %}" id="advance-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Advance</h6>
+                                    <p class="small mb-0">Fully customized</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Advance')">Select</button>
                             </div>
                         </div>
                     </div>
                     <input type="hidden" id="plan" name="plan" value="{{ results.plan }}">
-                    
-                    <!-- Component Selection -->
-                    <h4 class="section-header mt-4">Component Selection</h4>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" {% if results.real_estate_toggle %}checked{% endif %}>
-                        <label class="form-check-label" for="real_estate">Include Real Estate</label>
+                </div>
+            </div>
+
+            <!-- Component Selection - Updated to match Plan Selection style -->
+            <div class="col-md-4" style="flex: 1;">
+                <div class="sidebar-card">
+                    <h4 class="section-header">Component Selection</h4>
+                    <div class="component-selection-vertical mb-4">
+                        <div class="component-card-vertical mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Real Estate</h6>
+                                    <p class="small mb-0">Office space & facilities</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="real_estate" name="real_estate" {% if results.real_estate_toggle %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="component-card-vertical mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>IT Infrastructure</h6>
+                                    <p class="small mb-0">Hardware, networking & security</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" {% if results.it_infra_toggle %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="component-card-vertical mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Enabling Functions</h6>
+                                    <p class="small mb-0">HR, Finance & Admin</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enabling" name="enabling" {% if results.enabling_toggle %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="component-card-vertical">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Software Licensing</h6>
+                                    <p class="small mb-0">Applications & platforms</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="technology" name="technology" {% if results.technology_toggle %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="it_infra" name="it_infra" {% if results.it_infra_toggle %}checked{% endif %}>
-                        <label class="form-check-label" for="it_infra">Include IT Infrastructure</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="enabling" name="enabling" {% if results.enabling_toggle %}checked{% endif %}>
-                        <label class="form-check-label" for="enabling">Include Enabling Functions</label>
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="technology" name="technology" {% if results.technology_toggle %}checked{% endif %}>
-                        <label class="form-check-label" for="technology">Include Technology</label>
-                    </div>
-                    
-                    <!-- Calculate Button -->
                     <button type="submit" class="btn btn-primary w-100">Calculate Cost</button>
-                </form>
+                </div>
             </div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-8">
-            <h4 class="section-header">Calculation Results</h4>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="metric-card mb-4">
-                        <h5>Total Monthly Cost (INR)</h5>
-                        <h2 class="orange-text">₹{{ "{:,.0f}".format(results.total_cost) }}</h2>
-                    </div>
-                    
-                    <div class="content-card">
-                        <h6>Cost Breakdown (Monthly):</h6>
-                        {% if results.real_estate_toggle %}
-                        <p>- Real Estate: ₹{{ "{:,.0f}".format(results.total_real_estate_cost) }}</p>
-                        {% endif %}
-                        {% if results.it_infra_toggle %}
-                        <p>- IT Infrastructure: ₹{{ "{:,.0f}".format(results.total_it_infra_cost) }}</p>
-                        {% endif %}
-                        {% if results.enabling_toggle %}
-                        <p>- Enabling Functions: ₹{{ "{:,.0f}".format(results.enab_cost) }}</p>
-                        {% endif %}
-                        {% if results.technology_toggle %}
-                        <p>- Technology: ₹{{ "{:,.0f}".format(results.tech_cost) }}</p>
-                        {% endif %}
-                    </div>
-                </div>
+    </form>
+
+    <!-- Bottom Row: Calculation Results (Left) + Plan Details (Right) -->
+    <div class="row g-4 mt-3" style="display: flex; flex-wrap: nowrap;">
+        <!-- Calculation Results -->
+        <div class="col-md-8" style="flex: 2;">
+            <div class="content-card">
+                <h4 class="section-header">Calculation Results</h4>
                 
-                <div class="col-md-6">
-                    <div class="metric-card mb-4">
-                        <h5>Cost (USD/hour/head)</h5>
-                        <h2 class="orange-text">${{ "%.6f"|format(results.hourly_cost_per_head_usd) }}</h2>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <h6>Total Monthly Cost (INR)</h6>
+                            <h2 class="orange-text">₹{{ "{:,.0f}".format(results.total_cost) }}</h2>
+                        </div>
                     </div>
-                    
-                    <div class="content-card">
-                        <h6>Configuration:</h6>
-                        <p>- Headcount: {{ results.headcount }}</p>
-                        <p>- City: {{ results.city }} ({{ results.tier }})</p>
-                        <p>- Plan: {{ results.plan }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mt-4">
-                <div class="col-12">
-                    <button class="btn btn-primary" onclick="downloadReport()">Download Report</button>
-                </div>
-            </div>
-            
-            <hr class="my-4">
-            
-            <h4 class="section-header">Plan Details</h4>
-            
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="content-card">
-                        <h5>{{ results.plan_details.name }}</h5>
-                        <p class="fst-italic">{{ results.plan_details.description }}</p>
-                        
-                        <h6>Components Included:</h6>
-                        <ul class="list-unstyled">
-                            <li><strong>Real Estate:</strong> {{ results.plan_details.real_estate }}</li>
-                            <li><strong>IT Infrastructure:</strong> {{ results.plan_details.it_infra }}</li>
-                            <li><strong>Enabling Functions:</strong> {{ results.plan_details.enabling_functions }}</li>
-                            <li><strong>Technology:</strong> {{ results.plan_details.technology }}</li>
-                        </ul>
-                        
-                        <div class="alert alert-info">
-                            Note: If you upgrade to premium SaaS tiers, add specialist modules (performance, analytics, LMS) expect the totals to rise by 3-5%. Advance plan can be customized as per needs.
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <h6>Cost (USD/hour/head)</h6>
+                            <h2 class="orange-text">${{ "%.2f"|format(results.hourly_cost_per_head_usd) }}</h2>
                         </div>
                     </div>
                 </div>
+                
+                <h6>Cost Breakdown (Monthly):</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            {% if results.real_estate_toggle %}
+                            <li><strong>Real Estate:</strong> ₹{{ "{:,.0f}".format(results.total_real_estate_cost) }}</li>
+                            {% endif %}
+                            {% if results.it_infra_toggle %}
+                            <li><strong>IT Infrastructure:</strong> ₹{{ "{:,.0f}".format(results.total_it_infra_cost) }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            {% if results.enabling_toggle %}
+                            <li><strong>Enabling Functions:</strong> ₹{{ "{:,.0f}".format(results.enab_cost) }}</li>
+                            {% endif %}
+                            {% if results.technology_toggle %}
+                            <li><strong>Software Licensing:</strong> ₹{{ "{:,.0f}".format(results.tech_cost) }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <h6 class="mt-4">Configuration:</h6>
+                <p>Headcount: {{ results.headcount }} | City: {{ results.city }} ({{ results.tier }}) | Plan: {{ results.plan }}</p>
+                
+                <div class="mt-4">
+                    <button class="btn btn-primary" onclick="downloadReport()">
+                        <i class="fas fa-download me-2"></i>Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan Details -->
+        <div class="col-md-4" style="flex: 1;">
+            <div class="content-card">
+                <h4 class="section-header">Plan Details</h4>
+                <h5>{{ results.plan_details.name }}</h5>
+                <p id="plan-description" class="fst-italic">{{ results.plan_details.description }}</p>
+                <h6>Components Included:</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Real Estate:</strong> <span>{{ results.plan_details.real_estate }}</span></li>
+                    <li><strong>IT Infrastructure:</strong> <span>{{ results.plan_details.it_infra }}</span></li>
+                    <li><strong>Enabling Functions:</strong> <span>{{ results.plan_details.enabling_functions }}</span></li>
+                    <li><strong>Technology:</strong> <span>{{ results.plan_details.technology }}</span></li>
+                </ul>
+                <div class="alert alert-info">
+                    Note: Premium/Advance plans may increase totals by 3–5% depending on modules and customizations.
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<hr class="my-4">
+<hr class="my-5">
 
+<!-- Footer -->
 <div class="row">
     <div class="col-12 text-center footer">
-        <p class="disclaimer">Disclaimer: The cost estimates provided by Infraflex are indicative and approximate, based on prevailing market conditions. Actual costs may vary depending on location, vendor negotiations, and other dynamic factors.</p>
+        <p class="disclaimer">
+            Disclaimer: The cost estimates provided by Infraflex are indicative and approximate. 
+            Actual costs may vary depending on location, vendor negotiations, and other factors.
+        </p>
         <p>GCC Setup Cost Calculator v1.0</p>
     </div>
 </div>
+
+<!-- Add some custom CSS for the vertical plan cards -->
+<style>
+    .plan-selection-vertical {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .plan-card-vertical {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .plan-card-vertical.selected {
+        border-color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    .plan-card-vertical:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Component Selection Styles to match Plan Selection */
+    .component-selection-vertical {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .component-card-vertical {
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .component-card-vertical:hover {
+        background-color: #f8f9fa;
+        border-color: #FFE4D6;
+    }
+
+    .component-card-vertical h6 {
+        margin-bottom: 2px;
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .component-card-vertical .small {
+        color: #666;
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
+
+    /* Form switch customization */
+    .component-card-vertical .form-check-input {
+        width: 2.8em;
+        height: 1.5em;
+    }
+
+    .component-card-vertical .form-check-input:checked {
+        background-color: #FF7F41;
+        border-color: #FF7F41;
+    }
+
+    /* Ensure consistent spacing */
+    .component-selection-vertical.mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+</style>
 
 <script>
     // Cities data for each tier
@@ -237,7 +367,7 @@
         document.getElementById('plan').value = plan;
         
         // Update UI
-        const planCards = document.querySelectorAll('.plan-card');
+        const planCards = document.querySelectorAll('.plan-card-vertical');
         planCards.forEach(card => {
             card.classList.remove('selected');
         });
@@ -246,46 +376,127 @@
     }
     
     function downloadReport() {
-        // Generate timestamp using JavaScript instead of Jinja2
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // ✅ Safely embed values as numbers
+        const totalCost = {{ results.total_cost|tojson }};
+        const usdCost = {{ results.hourly_cost_per_head_usd|tojson }};
+        const realEstate = {{ results.total_real_estate_cost|tojson }};
+        const itInfra = {{ results.total_it_infra_cost|tojson }};
+        const enabling = {{ results.enab_cost|tojson }};
+        const technology = {{ results.tech_cost|tojson }};
+
+        // ---------- HEADER ----------
+        doc.setFontSize(20);
+        doc.setTextColor(40, 40, 40);
+        doc.text("GCC Setup Cost Report", 105, 20, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Generated on: " + new Date().toLocaleDateString(), 105, 28, { align: "center" });
+
+        // Disclaimer
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+            "Disclaimer: Estimates provided by Infraflex are indicative. Actuals may vary by location, vendor, and other factors.",
+            105,
+            36,
+            { align: "center", maxWidth: 180 }
+        );
+
+        // ---------- CONFIGURATION DETAILS ----------
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.text("Configuration Details", 20, 50);
+
+        const configData = [
+            ["Headcount", "{{ results.headcount }}"],
+            ["City", "{{ results.city }}"],
+            ["Tier", "{{ results.tier }}"],
+            ["Plan", "{{ results.plan }}"],
+        ];
+
+        doc.autoTable({
+            startY: 55,
+            head: [["Parameter", "Value"]],
+            body: configData,
+            theme: 'grid',
+            styles: { fontSize: 11, cellPadding: 3 },
+            headStyles: { fillColor: [255, 127, 65], textColor: 255, fontStyle: 'bold' },
+            margin: { left: 20 }
+        });
+
+        // ---------- COST SUMMARY ----------
+        let finalY = doc.lastAutoTable.finalY + 15;
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.text("Cost Summary", 20, finalY);
+
+        const costSummaryData = [
+            ["Total Monthly Cost (INR)", "Rs. " + totalCost.toLocaleString("en-IN")],
+            ["Cost (USD/hour/head)", "$" + usdCost.toFixed(2)],
+        ];
+
+        doc.autoTable({
+            startY: finalY + 5,
+            head: [["Metric", "Value"]],
+            body: costSummaryData,
+            theme: 'grid',
+            styles: { fontSize: 11, cellPadding: 3 },
+            headStyles: { fillColor: [52, 152, 219], textColor: 255, fontStyle: 'bold' },
+            margin: { left: 20 }
+        });
+
+        // ---------- COST BREAKDOWN ----------
+        finalY = doc.lastAutoTable.finalY + 15;
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.text("Cost Breakdown (Monthly)", 20, finalY);
+
+        const tableData = [];
+        {% if results.real_estate_toggle %}
+        tableData.push(["Real Estate", "Rs. " + realEstate.toLocaleString("en-IN")]);
+        {% endif %}
+        {% if results.it_infra_toggle %}
+        tableData.push(["IT Infrastructure", "Rs. " + itInfra.toLocaleString("en-IN")]);
+        {% endif %}
+        {% if results.enabling_toggle %}
+        tableData.push(["Enabling Functions", "Rs. " + enabling.toLocaleString("en-IN")]);
+        {% endif %}
+        {% if results.technology_toggle %}
+        tableData.push(["Software Licensing", "Rs. " + technology.toLocaleString("en-IN")]);
+        {% endif %}
+
+        // ✅ Add Grand Total row
+        tableData.push(["Grand Total", "Rs. " + totalCost.toLocaleString("en-IN")]);
+
+        doc.autoTable({
+            startY: finalY + 5,
+            head: [["Component", "Cost (INR)"]],
+            body: tableData,
+            theme: 'grid',
+            styles: { fontSize: 11, cellPadding: 3 },
+            headStyles: { fillColor: [46, 204, 113], textColor: 255, fontStyle: 'bold' },
+            columnStyles: { 0: { fontStyle: "bold" }, 1: { fontStyle: "bold" } },
+            margin: { left: 20 }
+        });
+
+        // ---------- FOOTER ----------
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(9);
+            doc.setTextColor(120, 120, 120);
+            doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: "center" });
+            doc.text("GCC Setup Cost Calculator v1.0 - gatewAI Infraflex®", 105, 292, { align: "center" });
+        }
+
+        // ---------- SAVE ----------
         const now = new Date();
         const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0];
-        
-        const data = {
-            headcount: {{ results.headcount }},
-            tier: "{{ results.tier }}",
-            city: "{{ results.city }}",
-            plan: "{{ results.plan }}",
-            real_estate_toggle: {{ results.real_estate_toggle | lower }},
-            it_infra_toggle: {{ results.it_infra_toggle | lower }},
-            enabling_toggle: {{ results.enabling_toggle | lower }},
-            technology_toggle: {{ results.technology_toggle | lower }},
-            total_real_estate_cost: {{ results.total_real_estate_cost }},
-            total_it_infra_cost: {{ results.total_it_infra_cost }},
-            enab_cost: {{ results.enab_cost }},
-            tech_cost: {{ results.tech_cost }},
-            total_cost: {{ results.total_cost }},
-            hourly_cost_per_head_usd: {{ results.hourly_cost_per_head_usd }}
-        };
-        
-        fetch("{{ url_for('download_report') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `gcc_cost_report_${timestamp}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(error => console.error('Error downloading report:', error));
+        doc.save(`gcc_cost_report_${timestamp}.pdf`);
     }
 </script>
 {% endblock %}
