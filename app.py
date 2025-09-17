@@ -172,7 +172,7 @@ def get_plan_details(plan):
             "description": "Essential GCC setup with core functionality",
             "real_estate": "Managed Workspace",
             "it_infra": "Hardware, Networking, Security solutions, Cloud, IT Support, Collaboration tools, Data-centre, Disaster-recovery backups, Compliance & audits, End-user peripherals, cybersecurity (SIEM/DLP), Biometric attendance/access",
-            "enabling_functions": "Based on team size: HR/Admin, Finance, IT, Admin, HRBP+Ops",
+            "enabling_functions": "Based on team size we provide support staff across HR/Admin, Finance, IT, Admin, HRBP+Ops",
             "technology": "Platforms like Talent Trail, Zoho People, Freshteam, Keka Foundation, BambooHR, SAP SuccessFactors, Recruiter Fusion, Zoho Books"
         }
     elif plan == "Premium":

@@ -55,7 +55,7 @@
 
 .company-logo:hover   {
     transform: scale(1.05);
-},
+}
 .secondary-logo:hover {
     transform: scale(1.05);
 }
@@ -101,8 +101,6 @@
     overflow: visible; /* Show full text */
 }
 
-
-
 /* Logo link styling */
 .logo-link {
     display: inline-block;
@@ -133,9 +131,9 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-/* Section headers */
+/* Section headers - CHANGED TO BLACK */
 .section-header {
-    color: #FF7F41 !important;
+    color: #000000 !important; /* Changed from #FF7F41 to black */
     border-bottom: 2px solid #FF7F41;
     padding-bottom: 0.5rem;
     margin-bottom: 1.5rem;
@@ -373,10 +371,7 @@ hr {
     display: flex;
 }
 
-/* === Strong alignment fix for top-row alignment ===
-   - Target the row(s) inside .main-container that hold the top three sections
-   - Force children to align to top and make card contents stretch evenly
-*/
+/* === Strong alignment fix for top-row alignment === */
 .main-container > .row.g-4,
 .main-container .row.g-4 {
     display: flex;
@@ -428,4 +423,20 @@ hr {
     background-color: #34495e; /* Slightly lighter blue fallback */
 }
 
-/* Responsive adjustments - REMOVED AS REQUESTED */
+/* ===============================
+   Plan Card Colors
+   =============================== */
+.plan-card.basic {
+    background-color: #f38e32; /* Basic */
+    color: #fff;
+}
+
+.plan-card.premium {
+    background-color: #4dceae; /* Premium */
+    color: #fff;
+}
+
+.plan-card.advance {
+    background-color: #c3804e; /* Advance */
+    color: #fff;
+}

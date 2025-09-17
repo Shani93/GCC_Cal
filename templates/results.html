@@ -2,7 +2,7 @@
 
 {% block content %}
 <!-- Header with Background Image and Main Logo -->
-<div class="header-container" style="background-image: url('{{ url_for('static', filename='images/header-bg.jpg') }}'); background-size: cover; background-position: center; padding: 20px 0;">
+<div class="header-container" style="background-image: url('{{ url_for('static', filename='images/hh.png') }}'); background-size: cover; background-position: center; padding: 20px 0;">
     <div class="container">
         <div class="header-content text-center">
             <div class="logo-section">
@@ -28,7 +28,7 @@
 <div class="tagline-section">
     <div class="tagline-container text-center">
         <p class="tagline">
-            gatewAI's Infraflex is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.
+            gatewAI's Infraflex* is a smart cost-calculator designed to help companies accurately estimate the total investment required to set up offices across Indian cities. It offers transparent insights for informed decision-making on infrastructure planning and expansion.
         </p>
     </div>
 </div>
@@ -72,12 +72,12 @@
                 </div>
             </div>
 
-            <!-- Plan Selection -->
+            <!-- Plan Selection - Modified for vertical layout -->
             <div class="col-md-4" style="flex: 1;">
                 <div class="sidebar-card">
                     <h4 class="section-header">Plan Selection</h4>
                     <div class="plan-selection-vertical mb-4">
-                        <div class="plan-card-vertical mb-3 {% if results.plan == 'Basic' %}selected{% endif %}" id="basic-card">
+                        <div class="plan-card-vertical plan-card basic mb-3" id="basic-card">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6>Basic</h6>
@@ -86,7 +86,7 @@
                                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Basic')">Select</button>
                             </div>
                         </div>
-                        <div class="plan-card-vertical mb-3 {% if results.plan == 'Premium' %}selected{% endif %}" id="premium-card">
+                        <div class="plan-card-vertical plan-card premium mb-3" id="premium-card">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6>Premium</h6>
@@ -95,7 +95,7 @@
                                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectPlan('Premium')">Select</button>
                             </div>
                         </div>
-                        <div class="plan-card-vertical {% if results.plan == 'Advance' %}selected{% endif %}" id="advance-card">
+                        <div class="plan-card-vertical plan-card advance" id="advance-card">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6>Advance</h6>
@@ -105,9 +105,10 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" id="plan" name="plan" value="{{ results.plan }}">
+                    <input type="hidden" id="plan" name="plan" value="Basic">
                 </div>
             </div>
+
 
             <!-- Component Selection - Updated to match Plan Selection style -->
             <div class="col-md-4" style="flex: 1;">
@@ -247,11 +248,13 @@
 
 <!-- Footer -->
 <div class="row">
+   
+        <div class="col-12 text-center "> *The cost estimates provided by Infraflex are indicative and approximate. 
+            Actual costs may vary depending on location, vendor negotiations, and other factors.</div>
+           
+       
     <div class="col-12 text-center footer">
-        <p class="disclaimer">
-            Disclaimer: The cost estimates provided by Infraflex are indicative and approximate. 
-            Actual costs may vary depending on location, vendor negotiations, and other factors.
-        </p>
+        
         <p>GCC Setup Cost Calculator v1.0</p>
     </div>
 </div>
@@ -259,25 +262,31 @@
 <!-- Add some custom CSS for the vertical plan cards -->
 <style>
     .plan-selection-vertical {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .plan-card-vertical {
-        padding: 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .plan-card-vertical.selected {
-        border-color: #0d6efd;
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-    
-    .plan-card-vertical:hover {
-        background-color: #f8f9fa;
-    }
+    display: flex;
+    flex-direction: column;  /* keep vertical stacking */
+    gap: 15px;               /* space between plans */
+    width: 100%;             /* take full width of parent container */
+}
+
+.plan-card-vertical {
+    width: 100%;             /* stretch full left to right */
+    padding: 11px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-sizing: border-box;  /* include padding in width */
+}
+
+.plan-card-vertical.selected {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.plan-card-vertical:hover {
+    background-color: #f8f9fa;
+}
+
 
     /* Component Selection Styles to match Plan Selection */
     .component-selection-vertical {
@@ -286,7 +295,7 @@
     }
 
     .component-card-vertical {
-        padding: 15px;
+        padding: 3px;
         border: 1px solid #ddd;
         border-radius: 8px;
         transition: all 0.3s ease;
@@ -400,7 +409,7 @@
         doc.setFontSize(9);
         doc.setTextColor(120, 120, 120);
         doc.text(
-            "Disclaimer: Estimates provided by Infraflex are indicative. Actuals may vary by location, vendor, and other factors.",
+            "Estimates provided by Infraflex are indicative. Actuals may vary by location, vendor, and other factors.",
             105,
             36,
             { align: "center", maxWidth: 180 }
