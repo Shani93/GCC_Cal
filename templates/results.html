@@ -385,127 +385,145 @@
     }
     
     function downloadReport() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-        // ✅ Safely embed values as numbers
-        const totalCost = {{ results.total_cost|tojson }};
-        const usdCost = {{ results.hourly_cost_per_head_usd|tojson }};
-        const realEstate = {{ results.total_real_estate_cost|tojson }};
-        const itInfra = {{ results.total_it_infra_cost|tojson }};
-        const enabling = {{ results.enab_cost|tojson }};
-        const technology = {{ results.tech_cost|tojson }};
+    // ✅ Safely embed values as numbers
+    const totalCost = {{ results.total_cost|tojson }};
+    const usdCost = {{ results.hourly_cost_per_head_usd|tojson }};
+    const realEstate = {{ results.total_real_estate_cost|tojson }};
+    const itInfra = {{ results.total_it_infra_cost|tojson }};
+    const enabling = {{ results.enab_cost|tojson }};
+    const technology = {{ results.tech_cost|tojson }};
 
-        // ---------- HEADER ----------
-        doc.setFontSize(20);
-        doc.setTextColor(40, 40, 40);
-        doc.text("GCC Setup Cost Report", 105, 20, { align: "center" });
+    // ---------- IMAGE PATHS ----------
+    const headerImg = "{{ url_for('static', filename='images/pdf_header.png') }}";
+    const footerImg = "{{ url_for('static', filename='images/pdf_footer.jpeg') }}";
 
-        doc.setFontSize(12);
-        doc.setTextColor(100, 100, 100);
-        doc.text("Generated on: " + new Date().toLocaleDateString(), 105, 28, { align: "center" });
+    // Define margins and dimensions
+    const pageWidth = 210; // A4 width in mm
+    const leftMargin = 15;
+    const rightMargin = 15;
+    const headerHeight = 45; // Increased header height
+    const footerHeight = 20;
+    const contentWidth = pageWidth - leftMargin - rightMargin;
 
-        // Disclaimer
-        doc.setFontSize(9);
-        doc.setTextColor(120, 120, 120);
-        doc.text(
-            "Estimates provided by Infraflex are indicative. Actuals may vary by location, vendor, and other factors.",
-            105,
-            36,
-            { align: "center", maxWidth: 180 }
-        );
-
-        // ---------- CONFIGURATION DETAILS ----------
-        doc.setFontSize(14);
-        doc.setTextColor(40, 40, 40);
-        doc.text("Configuration Details", 20, 50);
-
-        const configData = [
-            ["Headcount", "{{ results.headcount }}"],
-            ["City", "{{ results.city }}"],
-            ["Tier", "{{ results.tier }}"],
-            ["Plan", "{{ results.plan }}"],
-        ];
-
-        doc.autoTable({
-            startY: 55,
-            head: [["Parameter", "Value"]],
-            body: configData,
-            theme: 'grid',
-            styles: { fontSize: 11, cellPadding: 3 },
-            headStyles: { fillColor: [255, 127, 65], textColor: 255, fontStyle: 'bold' },
-            margin: { left: 20 }
-        });
-
-        // ---------- COST SUMMARY ----------
-        let finalY = doc.lastAutoTable.finalY + 15;
-        doc.setFontSize(14);
-        doc.setTextColor(40, 40, 40);
-        doc.text("Cost Summary", 20, finalY);
-
-        const costSummaryData = [
-            ["Total Monthly Cost (INR)", "Rs. " + totalCost.toLocaleString("en-IN")],
-            ["Cost (USD/hour/head)", "$" + usdCost.toFixed(2)],
-        ];
-
-        doc.autoTable({
-            startY: finalY + 5,
-            head: [["Metric", "Value"]],
-            body: costSummaryData,
-            theme: 'grid',
-            styles: { fontSize: 11, cellPadding: 3 },
-            headStyles: { fillColor: [52, 152, 219], textColor: 255, fontStyle: 'bold' },
-            margin: { left: 20 }
-        });
-
-        // ---------- COST BREAKDOWN ----------
-        finalY = doc.lastAutoTable.finalY + 15;
-        doc.setFontSize(14);
-        doc.setTextColor(40, 40, 40);
-        doc.text("Cost Breakdown (Monthly)", 20, finalY);
-
-        const tableData = [];
-        {% if results.real_estate_toggle %}
-        tableData.push(["Real Estate", "Rs. " + realEstate.toLocaleString("en-IN")]);
-        {% endif %}
-        {% if results.it_infra_toggle %}
-        tableData.push(["IT Infrastructure", "Rs. " + itInfra.toLocaleString("en-IN")]);
-        {% endif %}
-        {% if results.enabling_toggle %}
-        tableData.push(["Enabling Functions", "Rs. " + enabling.toLocaleString("en-IN")]);
-        {% endif %}
-        {% if results.technology_toggle %}
-        tableData.push(["Software Licensing", "Rs. " + technology.toLocaleString("en-IN")]);
-        {% endif %}
-
-        // ✅ Add Grand Total row
-        tableData.push(["Grand Total", "Rs. " + totalCost.toLocaleString("en-IN")]);
-
-        doc.autoTable({
-            startY: finalY + 5,
-            head: [["Component", "Cost (INR)"]],
-            body: tableData,
-            theme: 'grid',
-            styles: { fontSize: 11, cellPadding: 3 },
-            headStyles: { fillColor: [46, 204, 113], textColor: 255, fontStyle: 'bold' },
-            columnStyles: { 0: { fontStyle: "bold" }, 1: { fontStyle: "bold" } },
-            margin: { left: 20 }
-        });
-
-        // ---------- FOOTER ----------
+    function addHeaderFooter() {
         const pageCount = doc.internal.getNumberOfPages();
+        
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
-            doc.setFontSize(9);
-            doc.setTextColor(120, 120, 120);
-            doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: "center" });
-            doc.text("GCC Setup Cost Calculator v1.0 - gatewAI Infraflex®", 105, 292, { align: "center" });
-        }
 
-        // ---------- SAVE ----------
-        const now = new Date();
-        const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0];
-        doc.save(`gcc_cost_report_${timestamp}.pdf`);
+            // Header image - full width with increased height
+            doc.addImage(headerImg, "PNG", leftMargin, 5, contentWidth, headerHeight);
+
+            // Footer image - full width with proper margins
+            const footerY = doc.internal.pageSize.height - footerHeight - 10;
+            doc.addImage(footerImg, "JPEG", leftMargin, footerY, contentWidth, footerHeight);
+        }
     }
+
+    // ---------- CONFIGURATION DETAILS ----------
+    const startY = 60; // Increased space between header and content
+    
+    doc.setFontSize(14);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Configuration Details", leftMargin, startY);
+
+    const configData = [
+        ["Headcount", "{{ results.headcount }}"],
+        ["City", "{{ results.city }}"],
+        ["Tier", "{{ results.tier }}"],
+        ["Plan", "{{ results.plan }}"],
+    ];
+
+    doc.autoTable({
+        startY: startY + 5,
+        head: [["Parameter", "Value"]],
+        body: configData,
+        theme: 'grid',
+        styles: { fontSize: 11, cellPadding: 3 },
+        headStyles: { fillColor: [255, 127, 65], textColor: 255, fontStyle: 'bold' },
+        margin: { left: leftMargin, right: rightMargin },
+        tableWidth: contentWidth
+    });
+
+    // ---------- COST SUMMARY ----------
+    let finalY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Cost Summary", leftMargin, finalY);
+
+    const costSummaryData = [
+        ["Total Monthly Cost (INR)", "Rs. " + totalCost.toLocaleString("en-IN")],
+        ["Cost (USD/hour/head)", "$" + usdCost.toFixed(2)],
+    ];
+
+    doc.autoTable({
+        startY: finalY + 5,
+        head: [["Metric", "Value"]],
+        body: costSummaryData,
+        theme: 'grid',
+        styles: { fontSize: 11, cellPadding: 3 },
+        headStyles: { fillColor: [52, 152, 219], textColor: 255, fontStyle: 'bold' },
+        margin: { left: leftMargin, right: rightMargin },
+        tableWidth: contentWidth
+    });
+
+    // ---------- COST BREAKDOWN ----------
+    finalY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Cost Breakdown (Monthly)", leftMargin, finalY);
+
+    const tableData = [];
+    {% if results.real_estate_toggle %}
+    tableData.push(["Real Estate", "Rs. " + realEstate.toLocaleString("en-IN")]);
+    {% endif %}
+    {% if results.it_infra_toggle %}
+    tableData.push(["IT Infrastructure", "Rs. " + itInfra.toLocaleString("en-IN")]);
+    {% endif %}
+    {% if results.enabling_toggle %}
+    tableData.push(["Enabling Functions", "Rs. " + enabling.toLocaleString("en-IN")]);
+    {% endif %}
+    {% if results.technology_toggle %}
+    tableData.push(["Software Licensing", "Rs. " + technology.toLocaleString("en-IN")]);
+    {% endif %}
+
+    // ✅ Add Grand Total row
+    tableData.push(["Grand Total", "Rs. " + totalCost.toLocaleString("en-IN")]);
+
+    doc.autoTable({
+        startY: finalY + 5,
+        head: [["Component", "Cost (INR)"]],
+        body: tableData,
+        theme: 'grid',
+        styles: { fontSize: 11, cellPadding: 3 },
+        headStyles: { fillColor: [46, 204, 113], textColor: 255, fontStyle: 'bold' },
+        columnStyles: { 0: { fontStyle: "bold" }, 1: { fontStyle: "bold" } },
+        margin: { left: leftMargin, right: rightMargin },
+        tableWidth: contentWidth
+    });
+
+    // ---------- FOOTER PAGE NUMBER ----------
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        
+        // Position page number above footer
+        const pageNumY = doc.internal.pageSize.height - footerHeight - 15;
+        doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageNumY, { align: "center" });
+    }
+
+    // ✅ Add header & footer images AFTER all content
+    addHeaderFooter();
+
+    // ---------- SAVE ----------
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0];
+    doc.save(`gcc_cost_report_${timestamp}.pdf`);
+}
 </script>
 {% endblock %}
